@@ -13,9 +13,8 @@ Status: `[ ]` outstanding · `[x]` supplied
 | # | Input | What it unblocks | Where it goes |
 |---|---|---|---|
 | [ ] 1 | Is **Sagheer Ur Rahman** a personal name, a trading name, or a registered company? | `Organization` JSON-LD, footer, legal pages | `src/content/site.ts` → `businessName` |
-| [ ] 2 | Business email for receiving leads | Consultation form delivery | `.env.local` → `BUSINESS_INBOX` |
+| [ ] 2 | **Web3Forms access key.** Go to https://web3forms.com, enter the email where you want leads delivered, they email you a key. Free, no account. | Consultation form delivery — **the form will not send without this** | `NEXT_PUBLIC_WEB3FORMS_KEY` on Vercel |
 | [ ] 3 | WhatsApp and/or phone number | Contact page, footer contact block | `src/content/site.ts` → `contact[]` |
-| [ ] 4 | Resend account + verified sending domain | Form delivery and acknowledgement emails | `.env.local` → `RESEND_API_KEY`, `MAIL_FROM` |
 | [ ] 5 | Privacy policy reviewed by a professional | `/privacy-policy` — and legally, the form itself | `src/app/privacy-policy/page.tsx` |
 | [ ] 6 | Terms & conditions reviewed by a professional | `/terms` | `src/app/terms/page.tsx` |
 | [ ] 7 | Target countries / regions served | Copy tone, currency references, GDPR/UK-GDPR applicability | Content review |

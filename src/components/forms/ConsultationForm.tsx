@@ -18,9 +18,10 @@ import {
   SERVICE_OPTIONS,
   type FieldErrors,
 } from '@/lib/validation'
+import { submitConsultation, isFormConfigured } from '@/lib/forms'
 import { track } from '@/lib/analytics'
 
-type Status = 'idle' | 'submitting' | 'success' | 'error'
+type Status = 'idle' | 'submitting' | 'success' | 'error' | 'unconfigured'
 
 /**
  * Consultation form — specs.md §6, Constitution §34
@@ -100,49 +101,27 @@ export function ConsultationForm() {
     setErrors({})
     setStatus('submitting')
 
-    try {
-      const response = await fetch('/api/consultation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(parsed.data),
-      })
+    // Posts straight to the form provider from the browser. No API route,
+    // no serverless function, nothing to deploy beyond static files.
+    const result = await submitConsultation(parsed.data, renderedAt.current)
 
-      if (!response.ok) {
-        const body = (await response.json().catch(() => null)) as {
-          code?: string
-          errors?: FieldErrors
-        } | null
-
-        if (body?.errors) {
-          setErrors(body.errors)
-          setStatus('idle')
-          focusFirstError(body.errors)
-          return
-        }
-
-        track({
-          name: 'form_submit_error',
-          props: { code: body?.code ?? String(response.status) },
-        })
-        setStatus('error')
-        return
-      }
-
-      track({
-        name: 'form_submit_success',
-        props: {
-          marketplace: parsed.data.marketplace,
-          storeStatus: parsed.data.storeStatus,
-          service: parsed.data.service,
-        },
-      })
-
-      setStatus('success')
-      requestAnimationFrame(() => successRef.current?.focus())
-    } catch {
-      track({ name: 'form_submit_error', props: { code: 'network' } })
-      setStatus('error')
+    if (!result.ok) {
+      track({ name: 'form_submit_error', props: { code: result.code } })
+      setStatus(result.code === 'not_configured' ? 'unconfigured' : 'error')
+      return
     }
+
+    track({
+      name: 'form_submit_success',
+      props: {
+        marketplace: parsed.data.marketplace,
+        storeStatus: parsed.data.storeStatus,
+        service: parsed.data.service,
+      },
+    })
+
+    setStatus('success')
+    requestAnimationFrame(() => successRef.current?.focus())
   }
 
   if (status === 'success') {
@@ -176,6 +155,24 @@ export function ConsultationForm() {
       className="flex flex-col gap-6"
     >
       <Honeypot />
+
+      {/*
+        Shown up front rather than on submit. If the form has nowhere to
+        deliver to, telling someone after they have typed everything out is
+        worse than telling them before.
+      */}
+      {!isFormConfigured ? (
+        <div className="flex items-start gap-3 rounded-md border border-line bg-surface-muted p-4">
+          <Icon name="alert" className="mt-0.5 size-5 shrink-0 text-accent-700" />
+          <p className="text-body text-ink-700">
+            <span className="font-semibold text-ink-900">
+              This form is not connected yet.
+            </span>{' '}
+            It will not send until the site owner adds a form access key. Please
+            use a direct contact method for now.
+          </p>
+        </div>
+      ) : null}
 
       <div className="grid gap-6 sm:grid-cols-2">
         <InputField
@@ -288,6 +285,27 @@ export function ConsultationForm() {
             </span>{' '}
             Please try again in a moment. If it keeps failing, contact us
             directly and we will pick it up from there.
+          </p>
+        </div>
+      ) : null}
+
+      {/*
+        Setup state, not a user error. Without an access key the form has
+        nowhere to deliver to, and silently pretending it worked would lose
+        real leads. See CLIENT_INPUTS.md item 2.
+      */}
+      {status === 'unconfigured' ? (
+        <div
+          role="alert"
+          className="flex items-start gap-3 rounded-md border border-danger/30 bg-danger/5 p-4"
+        >
+          <Icon name="alert" className="mt-0.5 size-5 shrink-0 text-danger" />
+          <p className="text-body text-ink-700">
+            <span className="font-semibold text-ink-900">
+              This form is not connected yet.
+            </span>{' '}
+            Nothing was sent. Please contact us directly for now — we are sorry
+            for the inconvenience.
           </p>
         </div>
       ) : null}

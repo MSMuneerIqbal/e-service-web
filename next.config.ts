@@ -13,7 +13,9 @@ const csp = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self' data:",
-  "connect-src 'self'" + (isDev ? ' ws: wss:' : ''),
+  // The consultation form posts straight to Web3Forms from the browser.
+  // This is the only outbound host the site talks to.
+  "connect-src 'self' https://api.web3forms.com" + (isDev ? ' ws: wss:' : ''),
   "form-action 'self'",
   "frame-ancestors 'none'",
   "base-uri 'self'",

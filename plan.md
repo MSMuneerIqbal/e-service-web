@@ -11,13 +11,12 @@
 
 | Layer | Choice | Reason |
 |---|---|---|
-| Framework | Next.js 15, App Router | Spec D3. Server-first rendering, file routing, built-in metadata API |
+| Framework | Next.js 16, App Router | Spec D3. Server-first rendering, file routing, built-in metadata API. Fully static output — no serverless functions. |
 | Language | TypeScript, strict | Literal types enforce the anti-fabrication rules (specs §9) |
 | Styling | Tailwind CSS v4 | CSS-first `@theme` maps 1:1 onto the spec's design tokens |
 | Fonts | Inter via `next/font/google` | Self-hosted, no external request, `display: swap` |
 | Content | Typed TS modules in `src/content/` | Spec D3. No CMS runtime dependency |
-| Forms | Route Handler + Zod + Resend | Spec D4 |
-| Rate limit | Upstash Redis, in-memory dev fallback | Serverless instances don't share memory |
+| Forms | Browser posts directly to Web3Forms | Spec D4 / §23 — no backend, no serverless function |
 | Imagery | Hand-authored SVG components | Constitution §18 forbids stock/AI business photos; §6.4 wants dashboard visual language |
 | Deploy | Vercel | Static generation, edge headers |
 
@@ -45,7 +44,7 @@ The client instructed implementation to proceed without further questions. Where
 |---|---|
 | Business name | `Sagheer Ur Rahman` (spec D9) |
 | Entity type | Treated as a personal/trading name. No company number, no registered-address claim |
-| Contact email / WhatsApp / phone | Read from `site.ts`; **left empty**. Contact rows render only when populated. Form delivery is env-driven (`BUSINESS_INBOX`) |
+| Contact email / WhatsApp / phone | Read from `site.ts`; **left empty**. Contact rows render only when populated. Form delivery is env-driven (`NEXT_PUBLIC_WEB3FORMS_KEY`) |
 | Experience / tenure | **None claimed anywhere.** Site rests entirely on process depth (specs §2.3) |
 | Testimonials / case studies / team / metrics | Empty arrays → sections hidden |
 | Pricing | Not shown. No `Offer` schema |
@@ -68,7 +67,7 @@ Phase 4  Visuals ........ DashboardVisual, ListingPreview, ResearchMatrix, Growt
                           MarketplaceBadge, ExampleLabel, icon set, OG image route
 Phase 5  Marketing ...... Hero, ServiceCard, OfferingCard, FeatureSplit, ValueGrid,
                           ProcessTimeline, JourneySteps, FAQAccordion, CTASection, EmptyState
-Phase 6  Forms .......... field primitives, ConsultationForm, /api/consultation
+Phase 6  Forms .......... field primitives, ConsultationForm, direct-to-provider submit
 Phase 7  Pages .......... Home → Services hub → 6 service pages → 3 marketplace pages
                           → About → Contact → Case Studies → Blog → Legal → 404/500
 Phase 8  SEO ............ metadata per page, JSON-LD, sitemap, robots

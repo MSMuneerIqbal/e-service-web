@@ -29,7 +29,7 @@ const CONTROL_CHARS = new RegExp(
 
 /**
  * Strip control characters and collapse horizontal whitespace runs.
- * Server-side input hygiene before values are templated into an email.
+ * Applied before form values are sent to the form provider.
  * Newlines are preserved - they are meaningful in the message field.
  */
 export function sanitizeText(value: string): string {
@@ -37,21 +37,12 @@ export function sanitizeText(value: string): string {
 }
 
 /**
- * Single-line variant for fields that end up near email headers (name, subject
- * fragments). Removes newlines entirely, which closes off header injection.
+ * Single-line variant for fields that end up in the email subject the form
+ * provider generates. Removes newlines entirely, which closes off header
+ * injection through the subject line.
  */
 export function sanitizeLine(value: string): string {
   return sanitizeText(value)
     .replace(/[\r\n]+/g, ' ')
     .trim()
-}
-
-/** Escape a string for safe interpolation into an HTML email body. */
-export function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
 }

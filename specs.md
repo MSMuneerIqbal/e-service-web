@@ -47,7 +47,7 @@ Every claim is labelled per Constitution §42:
 | D1 | Page scope | Full site — 15 pages + Privacy + Terms |
 | D2 | Proof assets | None publishable yet → all evidence sections are data-gated |
 | D3 | Stack | Next.js App Router + TypeScript + Tailwind, typed local content modules, Vercel |
-| D4 | Lead handling | Route Handler → Zod → Resend transactional email, no lead database |
+| D4 | Lead handling | ~~Route Handler → Resend~~ **Superseded (v3):** fully static site, browser posts directly to Web3Forms. No API route, no serverless function, no server-side secrets. See §23. |
 | D5 | "A to Z" | **End-to-end store management.** Not Amazon claim handling. |
 | D6 | Marketplaces | eBay, Amazon, TikTok Shop — **equal status**, eBay listed first by focus, not by track record |
 | D7 | Sourcing models | Both dropshipping and own-inventory sellers served; dropshipping is a supported model, not the positioning |
@@ -874,6 +874,49 @@ Every page passes all eight before it is done:
 | §47 Decision hierarchy | See below |
 
 **§47 hierarchy applied:** truthfulness over polish (proof sections hidden rather than plausibly filled; the $2,000 figure dropped; no track record implied on any marketplace; a third party's work never presented as the client's). User clarity over conversion (revenue range optional and defaulted to "prefer not to say"; "A to Z" renamed on Amazon pages even though it is the client's own term). Accessibility over visual effect (no CAPTCHA, reduced-motion honoured, focus rings never removed). Performance over novelty (inline SVG hero, zero third-party scripts at launch).
+
+---
+
+---
+
+## 23. Amendment — static-only architecture (v3)
+
+The client asked for a site with no backend, deployable to Vercel as-is, with content managed through code and no admin panel. Three of those were already true; the fourth required a change.
+
+### What was already the case
+
+There was never a separate Node.js backend. The project was always a single Next.js app. Content was always typed modules in `src/content/` (D3, §9). There was never an admin panel. It always deployed to Vercel without configuration.
+
+### What actually changed
+
+The one server-side component was a Next.js Route Handler at `/api/consultation` that validated submissions and sent them via Resend. On Vercel that is a serverless function rather than a server to maintain, but it required a Resend account, a verified sending domain, and three environment variables — real setup friction, and the form could not work without them.
+
+**Removed:** `src/app/api/consultation/route.ts`, `src/lib/email.ts`, `src/lib/ratelimit.ts`, and the `resend` dependency.
+**Added:** `src/lib/forms.ts` — the browser posts directly to Web3Forms.
+
+### Consequences
+
+| Before | After |
+|---|---|
+| 1 serverless function | **0** — every route is `○ Static` or `● SSG` |
+| 4 runtime dependencies | 3 (`next`, `react`, `react-dom`, `zod`) |
+| 5 env vars, 3 of them secret | 2, neither secret |
+| Server-side Zod validation, authoritative | Client-side only; provider handles spam filtering |
+| Custom IP rate limiting | Provider's own limits |
+
+### The security tradeoff, stated plainly
+
+Validation is now client-side and can be bypassed by posting to the provider's endpoint directly. Constitution §28 asks for "server-side validation where appropriate" — with no server, that is no longer available, and pretending otherwise would be dishonest.
+
+This is acceptable **for this specific case**: the form's only effect is sending an email to the business owner. Nothing is written to a database, no money moves, no access is granted. The realistic downside is spam in an inbox, which the provider filters. The honeypot and minimum-fill-time checks still run client-side as a first filter.
+
+It would **not** be acceptable for a form that persisted data, processed payment, or authenticated anyone. If the site later grows such a feature, the serverless route comes back for that feature.
+
+`tests/static-site.test.ts` (9 tests) enforces the property so it cannot regress silently: no route handlers, no `/api` directory, no `runtime` or `force-dynamic` exports, no server-only dependencies, no non-public env vars, no hardcoded access key, and no real values committed to `.env.example`.
+
+### §12 performance note
+
+Removing the API route does not change the client bundle — it was never shipped to the browser. The measured figures in §12 stand.
 
 ---
 

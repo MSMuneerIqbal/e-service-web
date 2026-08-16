@@ -12,10 +12,15 @@ import {
 /**
  * Consultation schema.
  *
- * The bot-trap tests here guard a real bug that shipped and was caught in QA:
- * an earlier schema enforced `website` as empty, which made a tripped honeypot
- * fail validation with a 422 naming the trap field. The traps must stay
- * permissive at the schema layer so the route can reject them silently.
+ * The bot-trap tests here guard a real bug caught in QA: an earlier schema
+ * enforced `website` as empty, which made a tripped honeypot fail validation
+ * with an error naming the trap field. The traps must stay permissive at the
+ * schema layer so `submitConsultation` can swallow them silently instead.
+ *
+ * Note the site is now fully static, so this validation is client-side only
+ * and can be bypassed by posting to the form provider directly. That is an
+ * accepted tradeoff for having no backend; the provider applies its own spam
+ * filtering. It would not be acceptable for anything writing to a database.
  */
 
 const valid = {
@@ -152,8 +157,8 @@ describe('field validation', () => {
 
 describe('bot traps stay permissive at the schema layer', () => {
   test('a filled honeypot still PASSES validation', () => {
-    // Regression guard. If this starts failing, the route will return a 422
-    // naming the honeypot field and tell bots exactly what caught them.
+    // Regression guard. If this starts failing, the form will surface a field
+    // error naming the honeypot and tell bots exactly what caught them.
     const result = consultationSchema.safeParse({
       ...valid,
       website: 'http://spam.example',

@@ -2,7 +2,7 @@
 
 Tracks [plan.md](plan.md). Status: `[x]` done · `[!]` blocked on client input
 
-**Build status:** `npm run verify` green — typecheck clean · lint clean · build clean (23 routes) · **67/67 tests pass** · 0 npm vulnerabilities
+**Build status:** `npm run verify` green — typecheck clean · lint clean · build clean (23 routes, **0 serverless functions**) · **76/76 tests pass** · 0 npm vulnerabilities
 
 ---
 
@@ -133,6 +133,23 @@ Added after the manual QA pass, on the principle that a check nobody can re-run 
 | Banned-phrase test flagged "guaranteed sales" in FAQ copy | **False positive in the test.** The text is *"we do not promise guaranteed sales"* — a negation the constitution requires. Flat blocklists cannot see negation; removed those terms and rely on the context-aware test |
 | `/amazon` emits an `Organization` node without a contact point | **False positive.** It is a `provider` reference nested in `Service` (`name` + `url`, both true), not the standalone entity. Test narrowed to `#organization` |
 | `_global-error` missing canonical and footer | **Correct behaviour.** Next's framework-internal 500 replaces the whole document and never mounts the root layout. Test now scopes to public pages |
+
+## Phase 11 — Static-only architecture
+
+Client asked for no backend, pure Next.js, deployable to Vercel, content via code, no admin panel. Three of the four were already true — see specs.md §23.
+
+- [x] 11.1 Removed `src/app/api/consultation/route.ts` — the only server-side component
+- [x] 11.2 Removed `src/lib/email.ts` and `src/lib/ratelimit.ts`
+- [x] 11.3 Uninstalled `resend` (18 packages gone); runtime deps now `next`, `react`, `react-dom`, `zod`
+- [x] 11.4 Added `src/lib/forms.ts` — browser posts directly to Web3Forms
+- [x] 11.5 Form gained an `unconfigured` state plus an up-front notice, so it never silently discards leads when no key is set
+- [x] 11.6 CSP `connect-src` allows exactly one outbound host, `api.web3forms.com`
+- [x] 11.7 Env vars cut from 5 (3 secret) to 2 (0 secret)
+- [x] 11.8 Removed now-dead `escapeHtml` from `utils.ts`
+- [x] 11.9 `tests/static-site.test.ts` — 9 tests locking the property in place
+- [x] 11.10 Build confirms it: the `ƒ (Dynamic)` legend is gone; all 23 routes are `○ Static` or `● SSG`
+
+**Stated tradeoff:** validation is now client-side only and bypassable. Acceptable here because the form's only effect is sending an email; the realistic downside is inbox spam, which the provider filters. Recorded in specs.md §23 rather than glossed over.
 
 ---
 

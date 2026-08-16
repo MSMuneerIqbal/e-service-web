@@ -39,12 +39,13 @@ Requires **Node 22.6+** — the test suite uses Node's built-in runner and its t
 npm run verify
 ```
 
-67 tests across three files. They exist to guard the rules that are easy to break silently — a broken layout is obvious, but a future author adding "10+ years of experience" to a service description is not.
+76 tests across four files. They exist to guard the rules that are easy to break silently — a broken layout is obvious, but a future author adding "10+ years of experience" to a service description is not.
 
 | File | Guards |
 |---|---|
 | `tests/content-invariants.test.ts` | Banned language; every "guarantee" is a refusal; no digits in service claims; no percentage or currency claims; each service has a limitations statement; "A to Z" never leaks into rendered copy; marketplace vocabulary does not overlap; FAQ answers unique; proof records carry permission flags |
 | `tests/validation.test.ts` | Consultation schema: required fields, formats, length caps, consent must be literal `true`, plain-language error messages, **and that the bot traps stay permissive at the schema layer** |
+| `tests/static-site.test.ts` | That the site stays static: no route handlers, no `/api` directory, no `runtime`/`force-dynamic` exports, no server-only dependencies, no non-public env vars, no hardcoded access key, and no real values in `.env.example` |
 | `tests/rendered-output.test.ts` | Assertions against the prerendered HTML in `.next`: one `<h1>` per page, canonical + OG, no banned phrases in shipped bytes, no standalone `Organization` schema without a contact point, no `aggregateRating`/`Review`/`foundingDate`, non-affiliation footer present, `/amazon` free of "A to Z", gated pages `noindex`, no empty-section shells, marketplace pages <50% sentence overlap |
 
 `rendered-output` needs a build first — it skips with a clear message if `.next` is absent. That is why `verify` builds before testing.
@@ -57,24 +58,44 @@ npm run verify
 
 ---
 
+## This site has no backend
+
+Worth stating plainly, because it shapes everything else:
+
+- **No API routes, no serverless functions.** Every route is prerendered to static HTML at build time. The `npm run build` output shows only `○ Static` and `● SSG` — no `ƒ Dynamic` entries.
+- **No server-side secrets.** There is nothing to leak, because there is no server.
+- **No database, no CMS, no admin panel.** Content lives in typed modules in `src/content/` and changes through code.
+- **The consultation form posts directly from the browser** to Web3Forms, which emails the submission to you.
+
+`tests/static-site.test.ts` enforces all of this — adding a route handler, a `runtime` export, or a server-only dependency fails the build.
+
+---
+
 ## Environment variables
 
-Copy `.env.example` to `.env.local` and fill in. **Never commit `.env.local`.**
+Two variables, neither of them secret. Set them on Vercel under **Project → Settings → Environment Variables**, or in `.env.local` for local dev.
 
 | Variable | Required | Purpose |
 |---|---|---|
 | `NEXT_PUBLIC_SITE_URL` | Yes for production | Origin for canonicals, OG URLs, sitemap. No trailing slash. |
-| `RESEND_API_KEY` | Yes for the form | Transactional email. Server-only — must never be prefixed `NEXT_PUBLIC_`. |
-| `BUSINESS_INBOX` | Yes for the form | Where consultation requests are delivered. |
-| `MAIL_FROM` | Yes for the form | Verified sender on your Resend domain. |
-| `UPSTASH_REDIS_REST_URL` | Recommended | Distributed rate limiting — see note below. |
-| `UPSTASH_REDIS_REST_TOKEN` | Recommended | " |
+| `NEXT_PUBLIC_WEB3FORMS_KEY` | Yes for the form | Routes form submissions to your inbox. |
 
-**Without the three email variables the form still validates and responds correctly, but returns a handled `502 not_configured` and the user sees the fallback error message.** It never fails silently.
+### Getting the form key
 
-### Rate limiting caveat
+1. Go to **https://web3forms.com**
+2. Enter the email address where you want leads delivered.
+3. They email you an access key. No account, no password, free.
+4. Set it as `NEXT_PUBLIC_WEB3FORMS_KEY` and redeploy.
 
-`src/lib/ratelimit.ts` currently uses an in-memory map. On serverless (Vercel) each lambda instance has its own memory, so this is **best effort only** — a determined caller hitting cold instances can exceed the limit. It deters casual abuse and nothing more. For production, install `@upstash/ratelimit` and swap the implementation; `checkRateLimit()` is already shaped for a drop-in replacement.
+**The key is public by design.** It identifies which inbox a submission belongs to and grants no read access to anything, which is why `NEXT_PUBLIC_` is correct here. Never use that prefix for an actual secret.
+
+**Until the key is set,** the form renders with a visible notice saying it is not connected, and refuses to submit. It does not silently discard leads.
+
+### The tradeoff of having no server
+
+With no backend, form validation is **client-side only** and can be bypassed by posting to the provider's endpoint directly. Web3Forms applies its own spam filtering and rate limits on top, and the honeypot plus a minimum-fill-time check still run in the browser.
+
+For a lead form that is a fair exchange for having nothing to run or maintain. It would **not** be acceptable for anything that wrote to a database, moved money, or granted access — those need server-side validation you can trust.
 
 ---
 
@@ -129,7 +150,7 @@ Evidence sections are also data-gated: home testimonials, home case studies, and
 
 ```
 src/
-  app/          routes, API handler, sitemap, robots, OG image
+  app/          routes, sitemap, robots, OG image (no API handlers)
   components/
     primitives/ Button, Section, Container, Badge, Icon
     layout/     Navbar, MobileDrawer, Footer, StickyCta, Reveal, Breadcrumbs
@@ -137,7 +158,7 @@ src/
     marketplace/ SVG visuals — DashboardVisual, ListingPreview, ResearchMatrix
     forms/      Fields, ConsultationForm
   content/      all editable copy
-  lib/          seo, validation, email, ratelimit, analytics, utils
+  lib/          seo, validation, forms, analytics, utils
   styles/       globals.css — design tokens in @theme
 ```
 
@@ -151,12 +172,14 @@ src/
 
 ## Deployment (Vercel)
 
-1. Push to a Git repository and import into Vercel.
-2. Add the environment variables above under Project → Settings → Environment Variables.
+1. Push to a Git repository and import into Vercel. Framework preset is detected automatically — no build configuration needed.
+2. Add the two environment variables under **Project → Settings → Environment Variables**.
 3. Set `NEXT_PUBLIC_SITE_URL` to the production domain.
-4. Deploy. Every page is statically generated except `/api/consultation`.
+4. Deploy.
 
-Security headers (CSP, HSTS, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, `nosniff`) are set in `next.config.ts` and apply to all routes.
+**Every page is statically generated.** There are no serverless functions, so the site runs comfortably inside Vercel's free tier and has no cold starts.
+
+Security headers (CSP, HSTS, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, `nosniff`) are set in `next.config.ts` and applied by Vercel to all routes. The CSP `connect-src` allows exactly one outbound host, `api.web3forms.com`, which is the form endpoint.
 
 ---
 
