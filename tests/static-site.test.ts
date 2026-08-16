@@ -2,6 +2,7 @@ import { test, describe } from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { resolveBaseUrl } from '../src/content/site.ts'
 
 /**
  * Static-site guarantees.
@@ -78,9 +79,15 @@ describe('no leaked secrets', () => {
   test('no server-side secret env vars are referenced', () => {
     // Anything the browser needs must be NEXT_PUBLIC_ and therefore public.
     // A non-public env var in a static build is either dead code or a mistake.
+    //
+    // The two VERCEL_* entries are build-time only, injected by the platform,
+    // and contain a hostname rather than a credential. They are read solely to
+    // derive the site origin for SEO metadata (see content/site.ts).
     const allowed = new Set([
       'NEXT_PUBLIC_SITE_URL',
       'NEXT_PUBLIC_WEB3FORMS_KEY',
+      'VERCEL_PROJECT_PRODUCTION_URL',
+      'VERCEL_URL',
       'NODE_ENV',
     ])
 
@@ -125,6 +132,77 @@ describe('no leaked secrets', () => {
         `.env.example sets a real value for ${name}`
       )
     }
+  })
+})
+
+describe('deployment readiness', () => {
+  test('explicit configuration wins over everything', () => {
+    assert.equal(
+      resolveBaseUrl({
+        NEXT_PUBLIC_SITE_URL: 'https://real-domain.com',
+        VERCEL_PROJECT_PRODUCTION_URL: 'proj.vercel.app',
+        VERCEL_URL: 'deploy-abc.vercel.app',
+      }),
+      'https://real-domain.com'
+    )
+  })
+
+  test('falls back to the stable production domain', () => {
+    assert.equal(
+      resolveBaseUrl({
+        VERCEL_PROJECT_PRODUCTION_URL: 'proj.vercel.app',
+        VERCEL_URL: 'deploy-abc.vercel.app',
+      }),
+      'https://proj.vercel.app'
+    )
+  })
+
+  test('falls back to the per-deployment URL for previews', () => {
+    assert.equal(
+      resolveBaseUrl({ VERCEL_URL: 'deploy-abc.vercel.app' }),
+      'https://deploy-abc.vercel.app'
+    )
+  })
+
+  test('localhost is the last resort only', () => {
+    assert.equal(resolveBaseUrl({}), 'http://localhost:3000')
+  })
+
+  test('empty strings are ignored, not treated as configured', () => {
+    // A Vercel env var set but left blank is a very easy mistake to make.
+    assert.equal(
+      resolveBaseUrl({
+        NEXT_PUBLIC_SITE_URL: '',
+        VERCEL_PROJECT_PRODUCTION_URL: '   ',
+        VERCEL_URL: 'deploy-abc.vercel.app',
+      }),
+      'https://deploy-abc.vercel.app'
+    )
+  })
+
+  test('bare hostnames get https, existing schemes are preserved', () => {
+    assert.equal(resolveBaseUrl({ VERCEL_URL: 'x.vercel.app' }), 'https://x.vercel.app')
+    assert.equal(
+      resolveBaseUrl({ NEXT_PUBLIC_SITE_URL: 'http://staging.local' }),
+      'http://staging.local'
+    )
+  })
+
+  test('trailing slashes are stripped', () => {
+    // Double slashes in canonicals are a real and easily-missed SEO defect.
+    assert.equal(
+      resolveBaseUrl({ NEXT_PUBLIC_SITE_URL: 'https://real-domain.com///' }),
+      'https://real-domain.com'
+    )
+  })
+
+  test('package.json declares a Node engine Vercel can honour', () => {
+    const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')) as {
+      engines?: { node?: string }
+      scripts?: Record<string, string>
+    }
+    assert.ok(pkg.engines?.node, 'engines.node should be declared')
+    assert.equal(pkg.scripts?.build, 'next build')
   })
 })
 

@@ -17,6 +17,7 @@ export function absoluteUrl(path: string, baseUrl: string): string {
   return `${baseUrl}${path.startsWith('/') ? path : `/${path}`}`
 }
 
+
 /**
  * Control characters, excluding \t (09), \n (0A) and \r (0D) which are handled
  * separately. Constructed from a string literal so this source file contains

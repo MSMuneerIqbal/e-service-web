@@ -77,8 +77,23 @@ Two variables, neither of them secret. Set them on Vercel under **Project → Se
 
 | Variable | Required | Purpose |
 |---|---|---|
-| `NEXT_PUBLIC_SITE_URL` | Yes for production | Origin for canonicals, OG URLs, sitemap. No trailing slash. |
-| `NEXT_PUBLIC_WEB3FORMS_KEY` | Yes for the form | Routes form submissions to your inbox. |
+| `NEXT_PUBLIC_SITE_URL` | Optional | Origin for canonicals, OG URLs, sitemap. Falls back automatically — see below. |
+| `NEXT_PUBLIC_WEB3FORMS_KEY` | For the form only | Routes form submissions to your inbox. |
+
+**You can deploy with neither set.** The site builds and every page works; only the form is inactive.
+
+### Site URL resolves itself
+
+`resolveBaseUrl()` in `src/content/site.ts` picks the origin in this order:
+
+1. `NEXT_PUBLIC_SITE_URL` — explicit, always wins
+2. `VERCEL_PROJECT_PRODUCTION_URL` — your stable production domain, injected by Vercel
+3. `VERCEL_URL` — this specific deployment, so preview builds get correct URLs too
+4. `http://localhost:3000` — local development
+
+This exists because without it, a deploy made before you set `NEXT_PUBLIC_SITE_URL` would emit canonicals, Open Graph tags and a sitemap all pointing at `localhost:3000` — broken for crawlers, and the kind of thing nobody notices until rankings do. Vercel injects 2 and 3 automatically, so **the SEO output is correct on your very first deploy**.
+
+Set `NEXT_PUBLIC_SITE_URL` once you attach a custom domain. Blank values are ignored rather than treated as configured, and trailing slashes are stripped.
 
 ### Getting the form key
 
@@ -172,10 +187,12 @@ src/
 
 ## Deployment (Vercel)
 
-1. Push to a Git repository and import into Vercel. Framework preset is detected automatically — no build configuration needed.
-2. Add the two environment variables under **Project → Settings → Environment Variables**.
-3. Set `NEXT_PUBLIC_SITE_URL` to the production domain.
-4. Deploy.
+**Import the repo into Vercel and click Deploy. That is the whole process** — the Next.js preset is detected automatically, there is no build configuration, and no environment variable is required for the site to build and render correctly.
+
+Two things to do afterwards, whenever you are ready:
+
+1. **`NEXT_PUBLIC_WEB3FORMS_KEY`** — until this is set the form shows a visible "not connected yet" notice and refuses to submit. Everything else works.
+2. **`NEXT_PUBLIC_SITE_URL`** — only once you attach a custom domain. Until then Vercel's own domain is used automatically.
 
 **Every page is statically generated.** There are no serverless functions, so the site runs comfortably inside Vercel's free tier and has no cold starts.
 

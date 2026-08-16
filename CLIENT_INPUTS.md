@@ -18,7 +18,7 @@ Status: `[ ]` outstanding · `[x]` supplied
 | [ ] 5 | Privacy policy reviewed by a professional | `/privacy-policy` — and legally, the form itself | `src/app/privacy-policy/page.tsx` |
 | [ ] 6 | Terms & conditions reviewed by a professional | `/terms` | `src/app/terms/page.tsx` |
 | [ ] 7 | Target countries / regions served | Copy tone, currency references, GDPR/UK-GDPR applicability | Content review |
-| [ ] 8 | Production domain | Canonicals, OG URLs, sitemap | `.env.local` → `NEXT_PUBLIC_SITE_URL` |
+| [ ] 8 | Production domain — **not blocking.** Vercel's own domain is used automatically until you attach a custom one | Canonicals, OG URLs, sitemap | `NEXT_PUBLIC_SITE_URL` on Vercel |
 | [ ] 9 | Which sourcing models you actually use (wholesale supplier vs. retailer-shipped) | Product Research and New Store Launch policy wording | `src/content/services.ts` |
 
 **On #9:** marketplace dropshipping rules are restrictive and differ by platform. Broadly, eBay permits dropshipping from wholesale suppliers but restricts sourcing from another retailer that ships directly to your buyer, and Amazon requires you to be the seller of record on all packing materials. **Verify both against current published policy before launch.** The site currently describes sourcing in neutral terms and never advertises retail-arbitrage dropshipping.
