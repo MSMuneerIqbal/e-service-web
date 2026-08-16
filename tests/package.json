@@ -1,0 +1,4 @@
+{
+  "//": "Scopes ESM to the tests directory only. Setting \"type\": \"module\" in the root package.json would change how Next resolves its own config and tooling files, so it is confined here.",
+  "type": "module"
+}
