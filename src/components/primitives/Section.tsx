@@ -55,7 +55,10 @@ export function Section({
     <Tag
       id={id}
       aria-labelledby={labelledBy}
-      className={cn('py-16 md:py-24 lg:py-32', tones[tone], className)}
+      // Tightened from py-16/24/32. The original rhythm left sections feeling
+      // sparse rather than generous, especially where a short text column sat
+      // beside a tall visual.
+      className={cn('py-14 md:py-20 lg:py-24', tones[tone], className)}
     >
       {children}
     </Tag>

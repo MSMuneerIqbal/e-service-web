@@ -11,6 +11,21 @@
 # =============================================================================
 
 # ---------------------------------------------------------------------------
+# Which file is the homepage
+#
+# Listed BEFORE index.php on purpose. It means this site can be uploaded on
+# top of an existing WordPress install without deleting anything first:
+# index.html wins, WordPress goes dormant, and the old files can be removed
+# later once the new site is confirmed working.
+#
+# Reverting is just as easy - remove this file and WordPress serves again.
+#
+# Do tidy up the old WordPress files afterwards though. An unused install that
+# still receives updates-free PHP requests is avoidable attack surface.
+# ---------------------------------------------------------------------------
+DirectoryIndex index.html index.php
+
+# ---------------------------------------------------------------------------
 # HTTPS
 # ---------------------------------------------------------------------------
 <IfModule mod_rewrite.c>

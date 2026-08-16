@@ -64,6 +64,75 @@ export function FeatureSplit({
 }
 
 /* ================================================================== */
+/* FeatureBlock — heading above, visual full width below               */
+/* ================================================================== */
+
+/**
+ * Use this instead of FeatureSplit whenever the visual is itself a
+ * multi-column composition.
+ *
+ * FeatureSplit puts the visual in a half-width column. Nesting the
+ * before/after listing comparison inside it gave each card roughly a quarter
+ * of the page - titles wrapped to nine lines and a large dead space opened up
+ * beneath the shorter text column. This layout gives the visual the full
+ * container width and reads far better at every breakpoint.
+ */
+export function FeatureBlock({
+  eyebrow,
+  title,
+  description,
+  points,
+  visual,
+  cta,
+}: {
+  eyebrow?: string
+  title: string
+  description: string
+  points?: readonly string[]
+  visual: React.ReactNode
+  cta?: { label: string; href: string }
+}) {
+  return (
+    <div>
+      <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
+        <div className="lg:col-span-7">
+          <SectionHeading
+            eyebrow={eyebrow}
+            title={title}
+            description={description}
+          />
+        </div>
+
+        {points ? (
+          <div className="lg:col-span-5 lg:pt-2">
+            <ul className="grid gap-x-8 gap-y-3 sm:grid-cols-2 lg:grid-cols-1">
+              {points.map((point) => (
+                <li key={point} className="flex gap-3 text-body text-ink-700">
+                  <Icon
+                    name="check"
+                    className="mt-1 size-4.5 shrink-0 text-accent-700"
+                  />
+                  {point}
+                </li>
+              ))}
+            </ul>
+
+            {cta ? (
+              <Button href={cta.href} variant="secondary" className="mt-6">
+                {cta.label}
+                <Icon name="arrow" className="size-4" />
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
+
+      <div className="mt-12">{visual}</div>
+    </div>
+  )
+}
+
+/* ================================================================== */
 /* ValueGrid — differentiators                                         */
 /* ================================================================== */
 

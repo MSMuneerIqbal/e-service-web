@@ -16,11 +16,16 @@ import { site } from '@/content/site'
  */
 export function Hero() {
   return (
-    <section className="border-b border-line bg-surface-muted">
-      <Container>
-        <div className="grid items-center gap-12 py-16 md:py-20 lg:grid-cols-12 lg:gap-16 lg:py-24">
+    <section className="relative overflow-hidden border-b border-line bg-surface-muted">
+      {/* Soft radial wash. Purely decorative depth - no information here. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(60rem_32rem_at_15%_-10%,rgba(194,86,8,0.07),transparent_60%),radial-gradient(50rem_28rem_at_95%_10%,rgba(10,26,47,0.06),transparent_60%)]"
+      />
+      <Container className="relative">
+        <div className="grid items-center gap-10 py-14 md:py-16 lg:grid-cols-12 lg:gap-14 lg:py-20">
           <div className="lg:col-span-6">
-            <h1 className="text-h1 text-balance">
+            <h1 className="max-w-2xl text-h1 text-balance">
               Grow your eBay, Amazon and TikTok Shop store with expert
               marketplace management
             </h1>

@@ -6,7 +6,7 @@ import { Reveal } from '@/components/layout/Reveal'
 import { Hero } from '@/components/marketing/Hero'
 import { ServiceCard, OfferingCard } from '@/components/marketing/ServiceCard'
 import {
-  FeatureSplit,
+  FeatureBlock,
   ValueGrid,
   ProcessTimeline,
   JourneySteps,
@@ -69,10 +69,15 @@ export default function HomePage() {
         </Container>
       </Section>
 
+      {/*
+        FeatureBlock, not FeatureSplit: both visuals are themselves
+        multi-column compositions and were being crushed into a half-width
+        column. See the component comment.
+      */}
       <Section tone="muted">
         <Container>
           <Reveal>
-            <FeatureSplit
+            <FeatureBlock
               {...copy.research}
               visual={<ResearchMatrix />}
               cta={{ label: 'How research works', href: '/services/product-research' }}
@@ -84,8 +89,7 @@ export default function HomePage() {
       <Section>
         <Container>
           <Reveal>
-            <FeatureSplit
-              reverse
+            <FeatureBlock
               {...copy.listing}
               visual={<ListingPreview />}
               cta={{

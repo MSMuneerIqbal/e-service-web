@@ -45,7 +45,7 @@ export function resolveBaseUrl(
  * no component changes are needed.
  */
 export const site: SiteConfig = {
-  businessName: 'Sagheer Ur Rahman',
+  businessName: 'Aneq_AR',
 
   tagline:
     'Marketplace management and growth for eBay, Amazon and TikTok Shop sellers.',
