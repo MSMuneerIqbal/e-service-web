@@ -3,6 +3,18 @@ import type { NextConfig } from 'next'
 const isDev = process.env.NODE_ENV === 'development'
 
 /**
+ * Static export mode, enabled by `npm run build:static`.
+ *
+ * Produces a plain `out/` folder of HTML/CSS/JS that can be uploaded to any
+ * ordinary web host (IONOS, cPanel, shared hosting) with no Node runtime.
+ *
+ * The catch: `headers()` below stops applying, because static export has no
+ * server to send them. `public/.htaccess` carries the same headers for Apache
+ * hosts and is copied into the export automatically.
+ */
+const isStaticExport = process.env.STATIC_EXPORT === 'true'
+
+/**
  * Content Security Policy (Constitution §28).
  * 'unsafe-eval' is permitted in development only — Next's dev overlay requires it.
  * It is never emitted in production.
@@ -43,18 +55,20 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   compress: true,
 
-  images: {
-    formats: ['image/avif', 'image/webp'],
-  },
-
-  async headers() {
-    return [
-      {
-        source: '/:path*',
-        headers: securityHeaders,
-      },
-    ]
-  },
+  ...(isStaticExport
+    ? {
+        output: 'export' as const,
+        // No image optimizer without a server. The site uses inline SVG only,
+        // so nothing actually depends on this.
+        images: { unoptimized: true },
+      }
+    : {
+        images: { formats: ['image/avif', 'image/webp'] as const },
+        // Not supported in export mode; public/.htaccess covers Apache hosts.
+        async headers() {
+          return [{ source: '/:path*', headers: securityHeaders }]
+        },
+      }),
 }
 
 export default nextConfig

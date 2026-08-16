@@ -1,0 +1,84 @@
+# =============================================================================
+# Apache configuration for the static export (IONOS / cPanel / shared hosting)
+#
+# In the Vercel build these headers come from next.config.ts. A static export
+# has no server to send them, so they are set here instead. Without this file
+# the site still works but ships with NO security headers at all.
+#
+# Upload this file to the web root alongside index.html. It is a dotfile, so
+# enable "show hidden files" in your FTP client or File Manager or you will not
+# see it and will assume it failed to upload.
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# HTTPS
+# ---------------------------------------------------------------------------
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Force HTTPS. IONOS terminates TLS upstream, so check the forwarded header
+  # as well as HTTPS itself - checking only HTTPS causes a redirect loop.
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+  # Clean URLs: serve /about from about.html without exposing the extension.
+  # Next's export writes about.html, services/product-research.html and so on.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME}.html -f
+  RewriteRule ^(.*)$ $1.html [L]
+
+  # Strip a trailing slash so /about/ and /about do not become duplicate URLs
+  # competing in search results.
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.+)/$ /$1 [R=301,L]
+</IfModule>
+
+# ---------------------------------------------------------------------------
+# Custom error page
+# ---------------------------------------------------------------------------
+ErrorDocument 404 /404.html
+
+# ---------------------------------------------------------------------------
+# Security headers - mirrors next.config.ts
+# ---------------------------------------------------------------------------
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "DENY"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+  Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+
+  # connect-src allows exactly one outbound host: the consultation form
+  # endpoint. Everything else is same-origin.
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://api.web3forms.com; form-action 'self'; frame-ancestors 'none'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests"
+
+  # Hashed build assets are immutable and safe to cache hard.
+  <FilesMatch "\.(js|css|woff2)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+
+  # HTML must revalidate so a redeploy is picked up immediately.
+  <FilesMatch "\.html$">
+    Header set Cache-Control "public, max-age=0, must-revalidate"
+  </FilesMatch>
+</IfModule>
+
+# ---------------------------------------------------------------------------
+# Compression
+# ---------------------------------------------------------------------------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml
+  AddOutputFilterByType DEFLATE application/javascript application/json
+  AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# ---------------------------------------------------------------------------
+# Hardening
+# ---------------------------------------------------------------------------
+Options -Indexes
+
+<FilesMatch "^\.(htaccess|env)">
+  Require all denied
+</FilesMatch>

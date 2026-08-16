@@ -1,5 +1,8 @@
 import type { MetadataRoute } from 'next'
 import { site } from '@/content/site'
+
+// Required by `output: 'export'`, harmless in the standard build.
+export const dynamic = 'force-static'
 import { services } from '@/content/services'
 import { marketplaces } from '@/content/marketplaces'
 import { caseStudies } from '@/content/proof'

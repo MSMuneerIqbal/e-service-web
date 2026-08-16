@@ -196,6 +196,55 @@ describe('deployment readiness', () => {
     )
   })
 
+  test('favicon and social image are real files, not dynamic routes', () => {
+    // Regression guard. These were previously ImageResponse routes
+    // (app/icon.tsx, app/opengraph-image.tsx). Dynamic image routes emit
+    // NOTHING under `output: 'export'`, so on static hosting the favicon and
+    // every social preview 404'd while the build reported success.
+    assert.ok(
+      existsSync(join(ROOT, 'src', 'app', 'icon.svg')),
+      'favicon must be a static file so it survives a static export'
+    )
+    assert.ok(
+      existsSync(join(ROOT, 'public', 'og.png')),
+      'social image must be a static file so it survives a static export'
+    )
+    assert.equal(
+      existsSync(join(ROOT, 'src', 'app', 'icon.tsx')),
+      false,
+      'a dynamic icon route would produce no file in a static export'
+    )
+    assert.equal(
+      existsSync(join(ROOT, 'src', 'app', 'opengraph-image.tsx')),
+      false,
+      'a dynamic OG route would produce no file in a static export'
+    )
+  })
+
+  test('an .htaccess exists to carry headers on non-Vercel hosts', () => {
+    // next.config.ts headers() does not apply to a static export - there is no
+    // server to send them. Without this file the exported site would ship with
+    // no security headers at all.
+    const htaccess = join(ROOT, 'public', '.htaccess')
+    assert.ok(existsSync(htaccess), 'public/.htaccess is required for static hosting')
+
+    const source = readFileSync(htaccess, 'utf8')
+    for (const header of [
+      'X-Content-Type-Options',
+      'X-Frame-Options',
+      'Referrer-Policy',
+      'Content-Security-Policy',
+      'Strict-Transport-Security',
+    ]) {
+      assert.match(source, new RegExp(header), `.htaccess must set ${header}`)
+    }
+    assert.match(
+      source,
+      /api\.web3forms\.com/,
+      '.htaccess CSP must allow the form endpoint or submissions will be blocked'
+    )
+  })
+
   test('package.json declares a Node engine Vercel can honour', () => {
     const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')) as {
       engines?: { node?: string }

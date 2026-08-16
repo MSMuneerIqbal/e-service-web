@@ -51,7 +51,11 @@ export function buildMetadata({
       locale: site.locale,
       images: [
         {
-          url: absoluteUrl('/opengraph-image', site.baseUrl),
+          // A real file in public/ rather than a dynamic ImageResponse route.
+          // Dynamic image routes emit nothing under `output: 'export'`, which
+          // left the favicon and social preview 404ing on static hosting.
+          // Regenerate with scripts/build-og.md if the branding changes.
+          url: absoluteUrl('/og.png', site.baseUrl),
           width: 1200,
           height: 630,
           alt: `${site.businessName} — ${site.tagline}`,

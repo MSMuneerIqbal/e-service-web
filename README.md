@@ -200,6 +200,40 @@ Security headers (CSP, HSTS, `X-Frame-Options`, `Referrer-Policy`, `Permissions-
 
 ---
 
+## Deploying to ordinary hosting (IONOS, cPanel, shared)
+
+Because the site is fully static it does not need Node on the server. It can be uploaded to any normal web host.
+
+```bash
+npm run build:static
+```
+
+This produces `out/` — plain HTML, CSS, JS. **Upload the contents of `out/` to your web root** (`/`, `htdocs/`, or `public_html/` depending on host).
+
+### Three things that will bite you
+
+**1. `.htaccess` is a hidden file.** It carries every security header, the HTTPS redirect, the clean-URL rewrite and the 404 page — because `next.config.ts` headers do not apply without a Next server. Most FTP clients and File Managers hide dotfiles by default. **Enable "show hidden files" or the site ships with no security headers and broken URLs.** The build script copies it into `out/` and prints a confirmation line.
+
+**2. Clean URLs depend on `mod_rewrite`.** The export writes `about.html`, and the `.htaccess` rewrites `/about` → `/about.html`. On Apache (IONOS, cPanel) this works out of the box. On nginx you need an equivalent `try_files` rule instead.
+
+**3. Redeploys are manual.** There is no git integration — you re-run `build:static` and re-upload. This is the main reason Vercel is easier.
+
+### Replacing an existing WordPress site
+
+Uploading into a web root that already runs WordPress will collide with its `index.php` and `.htaccess`. Back up and remove the WordPress files first, or move them to a subfolder. Do this only once the new site is confirmed working, and keep the backup.
+
+### Regenerating the social image
+
+`public/og.png` and `src/app/icon.svg` are **static files on purpose**. They were previously dynamic `ImageResponse` routes, which emit nothing under `output: 'export'` — the favicon and every social preview 404'd while the build still reported success.
+
+To regenerate `og.png` after a branding change, render a 1200×630 page and screenshot it:
+
+```bash
+chrome --headless=new --window-size=1200,630 --screenshot=public/og.png file:///path/to/template.html
+```
+
+---
+
 ## Before going live
 
 Work through [CLIENT_INPUTS.md](CLIENT_INPUTS.md). The blocking items are: entity type, lead inbox, contact number, Resend setup, reviewed privacy policy, reviewed terms, target regions, production domain, and confirmation of which sourcing models are used.

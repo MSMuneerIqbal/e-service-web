@@ -5,6 +5,10 @@ build
 .DS_Store
 *.pem
 
+# Temporary holding area used by scripts/build-static.mjs.
+# Should never persist - the script restores on exit, failure and SIGINT.
+.static-export-holding
+
 # env — never commit secrets (Constitution §28)
 .env
 .env.local
