@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Container } from '@/components/primitives/Section'
+import { Icon } from '@/components/primitives/Icon'
 import { footerColumns } from '@/content/navigation'
 import { site, hasContactChannels, hasSocialLinks } from '@/content/site'
 
@@ -30,8 +31,20 @@ export function Footer() {
                   <li key={channel.href}>
                     <a
                       href={channel.href}
-                      className="text-body text-white/80 underline decoration-white/30 underline-offset-4 transition-colors hover:text-white hover:decoration-white"
+                      target={channel.href.startsWith('http') ? '_blank' : undefined}
+                      rel={channel.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                      className="inline-flex items-center gap-2.5 text-body text-white/80 transition-colors hover:text-white"
                     >
+                      <Icon
+                        name={
+                          channel.event === 'whatsapp_click'
+                            ? 'whatsapp'
+                            : channel.event === 'email_click'
+                              ? 'message'
+                              : 'clock'
+                        }
+                        className="size-4.5 shrink-0 text-accent-400"
+                      />
                       <span className="sr-only">{channel.label}: </span>
                       {channel.value}
                     </a>
@@ -41,14 +54,19 @@ export function Footer() {
             ) : null}
 
             {hasSocialLinks ? (
-              <ul className="mt-6 flex flex-wrap gap-4">
+              <ul className="mt-6 flex flex-wrap gap-3">
                 {site.social.map((link) => (
                   <li key={link.href}>
                     <a
                       href={link.href}
+                      target="_blank"
                       rel="noopener noreferrer"
-                      className="text-small text-white/70 underline underline-offset-4 hover:text-white"
+                      className="inline-flex items-center gap-2 rounded-full border border-white/20 px-3.5 py-1.5 text-small font-medium text-white/80 transition-colors hover:border-white/40 hover:text-white"
                     >
+                      <Icon
+                        name={link.label.toLowerCase() === 'upwork' ? 'upwork' : 'arrow'}
+                        className="size-4 shrink-0"
+                      />
                       {link.label}
                     </a>
                   </li>

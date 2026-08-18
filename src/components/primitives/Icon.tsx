@@ -85,6 +85,19 @@ const paths: Record<IconName, React.ReactNode> = {
   ),
   close: <path d="m6 6 12 12M18 6 6 18" />,
   menu: <path d="M4 7h16M4 12h16M4 17h16" />,
+  // Nominative use: identifies the contact channel, implies no endorsement.
+  whatsapp: (
+    <>
+      <path d="M3.5 20.5 4.9 16a8 8 0 1 1 3.1 3.1z" />
+      <path d="M9 9.5c0 3 2.5 5.5 5.5 5.5.5 0 1-.4 1-.9v-.9l-1.8-.8-.9 1a5.2 5.2 0 0 1-2.2-2.2l1-.9-.8-1.8h-.9c-.5 0-.9.5-.9 1z" />
+    </>
+  ),
+  upwork: (
+    <>
+      <path d="M4 8v4.5a3.5 3.5 0 0 0 7 0V8" />
+      <path d="M11 11.5c1-3 2.4-4.5 4.5-4.5a4 4 0 0 1 0 8c-2.6 0-4-2.4-4.9-5" />
+    </>
+  ),
 }
 
 interface IconProps {

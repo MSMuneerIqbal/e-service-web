@@ -7,6 +7,7 @@ import { SkipLink } from '@/components/layout/SkipLink'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { StickyCta } from '@/components/layout/StickyCta'
+import { FloatingWhatsApp } from '@/components/layout/FloatingWhatsApp'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -54,6 +55,7 @@ export default function RootLayout({
         </main>
         <Footer />
         <StickyCta />
+        <FloatingWhatsApp />
       </body>
     </html>
   )

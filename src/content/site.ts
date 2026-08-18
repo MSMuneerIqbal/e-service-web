@@ -59,14 +59,23 @@ export const site: SiteConfig = {
   // flipped casually; Constitution §8 forbids implying free if it is not.
   consultationIsFree: true,
 
-  // [AWAITING CLIENT INPUT] — see CLIENT_INPUTS.md items 2 and 3.
-  // Example of the shape, for when the values arrive:
-  //   { label: 'Email',    value: 'hello@…',      href: 'mailto:hello@…',        event: 'email_click' },
-  //   { label: 'WhatsApp', value: '+00 000 000',  href: 'https://wa.me/00000',   event: 'whatsapp_click' },
-  contact: [],
+  contact: [
+    {
+      label: 'WhatsApp',
+      value: '+971 58 858 1245',
+      // wa.me needs digits only - no plus, spaces or dashes.
+      href: 'https://wa.me/971588581245',
+      event: 'whatsapp_click',
+    },
+    // [AWAITING CLIENT INPUT] Business email. Add when confirmed:
+    //   { label: 'Email', value: 'info@…', href: 'mailto:info@…', event: 'email_click' },
+  ],
 
-  // [AWAITING CLIENT INPUT] — item 16. Only real, active profiles.
-  social: [],
+  social: [
+    // Supplied by the client as their own profile. Not independently verified -
+    // Upwork sits behind bot protection - so confirm the link resolves before launch.
+    { label: 'Upwork', href: 'https://www.upwork.com/freelancers/~0194a9cd6c8a2d6bd4' },
+  ],
 
   /**
    * Safe to read non-public env vars here: baseUrl is consumed only by

@@ -211,3 +211,5 @@ export type IconName =
   | 'alert'
   | 'close'
   | 'menu'
+  | 'whatsapp'
+  | 'upwork'

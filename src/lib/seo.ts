@@ -97,7 +97,11 @@ export function organizationSchema(): Json | null {
   }
 
   const email = site.contact.find((c) => c.event === 'email_click')
-  const phone = site.contact.find((c) => c.event === 'phone_click')
+  // WhatsApp is a real reachable telephone number, so it belongs in
+  // contactPoint alongside a plain phone line rather than being dropped.
+  const phone =
+    site.contact.find((c) => c.event === 'phone_click') ??
+    site.contact.find((c) => c.event === 'whatsapp_click')
 
   if (email || phone) {
     schema.contactPoint = {
