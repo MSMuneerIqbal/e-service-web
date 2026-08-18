@@ -39,13 +39,15 @@ export function resolveBaseUrl(
 /**
  * Site configuration — the single source of truth for identity and CTA wording.
  *
- * `contact` and `social` are intentionally EMPTY. Every consumer renders
- * nothing rather than a placeholder, per Constitution §48 Rule 8 and
- * specs.md §15. Fill them in from CLIENT_INPUTS.md when the details land —
- * no component changes are needed.
+ * Every consumer of `contact` and `social` renders nothing when an entry is
+ * absent, rather than showing a placeholder (Constitution §48 Rule 8). That is
+ * why the contact panel, footer row and floating WhatsApp button appeared on
+ * their own the moment a real number was added here, with no component edits.
+ *
+ * Remaining gaps are tracked in CLIENT_INPUTS.md.
  */
 export const site: SiteConfig = {
-  businessName: 'Aneq_AR',
+  businessName: 'AR Services Digital',
 
   tagline:
     'Marketplace management and growth for eBay, Amazon and TikTok Shop sellers.',
