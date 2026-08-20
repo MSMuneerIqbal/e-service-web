@@ -306,6 +306,44 @@ describe('mobile: no horizontal scroll', () => {
   })
 })
 
+describe('mobile layout traps', () => {
+  test('the mobile drawer is portalled out of the header', () => {
+    // The header uses backdrop-blur, and backdrop-filter makes an element a
+    // containing block for position:fixed descendants. Rendered inside it,
+    // `fixed inset-0` resolved against the 72px header, so the drawer panel
+    // was 72px tall and every menu item laid out below its own container -
+    // the menu appeared empty.
+    const drawer = readFileSync(
+      join(ROOT, 'src', 'components', 'layout', 'MobileDrawer.tsx'),
+      'utf8'
+    )
+    assert.match(drawer, /createPortal/, 'drawer must be portalled')
+    assert.match(
+      drawer,
+      /createPortal\(overlay, document\.body\)/,
+      'drawer must portal to document.body to escape the header containing block'
+    )
+  })
+
+  test('horizontal scrollers are containing blocks', () => {
+    // sr-only uses position:absolute, and an absolutely positioned element is
+    // only clipped by an ancestor's overflow when that ancestor is its
+    // containing block. A static overflow-x-auto wrapper does not clip them,
+    // so they escaped a 587px-wide table and widened the whole page.
+    for (const file of srcFiles.filter((f) => f.endsWith('.tsx'))) {
+      const source = readFileSync(file, 'utf8')
+      for (const line of source.split(String.fromCharCode(10))) {
+        if (!line.includes('overflow-x-auto')) continue
+        assert.match(
+          line,
+          /relative/,
+          `${file.slice(ROOT.length)}: an overflow-x-auto wrapper needs \`relative\` or absolutely positioned children escape it`
+        )
+      }
+    }
+  })
+})
+
 describe('build output is fully static', () => {
   const buildDir = join(ROOT, '.next', 'server', 'app')
   const skip = existsSync(buildDir)

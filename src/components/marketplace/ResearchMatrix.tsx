@@ -70,7 +70,15 @@ const verdictStyles: Record<Verdict, { label: string; className: string }> = {
 export function ResearchMatrix() {
   return (
     <div>
-      <div className="min-w-0 overflow-x-auto rounded-xl border border-line bg-surface shadow-sm">
+      {/*
+        `relative` is load-bearing. The score meters contain sr-only spans, and
+        Tailwind's sr-only uses position:absolute. An absolutely positioned
+        element is only clipped by an ancestor's overflow if that ancestor is
+        its containing block - a static wrapper is not. Without this, those 1px
+        spans escaped the scroller from inside the 587px table and stretched
+        the whole page 43px wider than the viewport on phones.
+      */}
+      <div className="relative min-w-0 overflow-x-auto rounded-xl border border-line bg-surface shadow-sm">
         <table className="w-full min-w-[36rem] border-collapse text-left">
           <caption className="sr-only">
             Example product research comparison across demand, competition,

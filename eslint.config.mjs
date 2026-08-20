@@ -21,6 +21,12 @@ const config = [
       'no-console': ['warn', { allow: ['error', 'warn'] }],
     },
   },
+  {
+    // Build scripts are CLIs - their console output IS the user interface.
+    // Must come after the general rule: flat config applies in order.
+    files: ['scripts/**/*.mjs'],
+    rules: { 'no-console': 'off' },
+  },
 ]
 
 export default config
