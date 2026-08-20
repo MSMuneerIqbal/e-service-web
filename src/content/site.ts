@@ -69,8 +69,12 @@ export const site: SiteConfig = {
       href: 'https://wa.me/971588581245',
       event: 'whatsapp_click',
     },
-    // [AWAITING CLIENT INPUT] Business email. Add when confirmed:
-    //   { label: 'Email', value: 'info@…', href: 'mailto:info@…', event: 'email_click' },
+    {
+      label: 'Email',
+      value: 'info@arservicesdigital.com',
+      href: 'mailto:info@arservicesdigital.com',
+      event: 'email_click',
+    },
   ],
 
   social: [

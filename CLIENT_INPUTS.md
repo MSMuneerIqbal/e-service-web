@@ -13,12 +13,12 @@ Status: `[ ]` outstanding · `[~]` partially supplied · `[x]` supplied
 | # | Input | What it unblocks | Where it goes |
 |---|---|---|---|
 | [~] 1 | Name is now **Aneq_AR** as instructed. Still confirm: is it a personal name, a trading name, or a registered company — and is the underscore intended for public use? The domain and email say *AR Services Digital* | `Organization` JSON-LD, footer, legal pages | `src/content/site.ts` → `businessName` |
-| [ ] 2 | **Web3Forms access key.** Go to https://web3forms.com, enter the email where you want leads delivered, they email you a key. Free, no account. | Consultation form delivery — **the form will not send without this** | `NEXT_PUBLIC_WEB3FORMS_KEY` on Vercel |
+| [ ] 2 | **Web3Forms access key.** Go to https://web3forms.com, enter `info@arservicesdigital.com`, they email you a key. Free, no account. | Consultation form delivery — **the form will not send without this** | `NEXT_PUBLIC_WEB3FORMS_KEY` on Vercel |
 | [x] 3 | ~~WhatsApp / phone~~ **Supplied: +971 58 858 1245** | Live in footer, contact page and floating button | `src/content/site.ts` → `contact[]` |
 | [ ] 5 | Privacy policy reviewed by a professional | `/privacy-policy` — and legally, the form itself | `src/app/privacy-policy/page.tsx` |
 | [ ] 6 | Terms & conditions reviewed by a professional | `/terms` | `src/app/terms/page.tsx` |
 | [ ] 7 | Target countries / regions served | Copy tone, currency references, GDPR/UK-GDPR applicability | Content review |
-| [ ] 8 | Production domain — **not blocking.** Vercel's own domain is used automatically until you attach a custom one | Canonicals, OG URLs, sitemap | `NEXT_PUBLIC_SITE_URL` on Vercel |
+| [x] 8 | ~~Production domain~~ **Live at arservicesdigital.com.** Set `NEXT_PUBLIC_SITE_URL=https://arservicesdigital.com` on Vercel or canonicals resolve to the www variant | Canonicals, OG URLs, sitemap | `NEXT_PUBLIC_SITE_URL` on Vercel |
 | [ ] 9 | Which sourcing models you actually use (wholesale supplier vs. retailer-shipped) | Product Research and New Store Launch policy wording | `src/content/services.ts` |
 
 **On #9:** marketplace dropshipping rules are restrictive and differ by platform. Broadly, eBay permits dropshipping from wholesale suppliers but restricts sourcing from another retailer that ships directly to your buyer, and Amazon requires you to be the seller of record on all packing materials. **Verify both against current published policy before launch.** The site currently describes sourcing in neutral terms and never advertises retail-arbitrage dropshipping.
