@@ -270,7 +270,14 @@ export function CheckboxField({
  */
 export function Honeypot() {
   return (
-    <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+    // Hidden by clipping rather than by pushing it off-canvas with a large
+    // negative offset - that technique makes several mobile browsers grow the
+    // scrollable area, which is one way a page ends up scrolling sideways.
+    <div
+      aria-hidden="true"
+      className="absolute h-px w-px overflow-hidden border-0 p-0"
+      style={{ clip: 'rect(0 0 0 0)', clipPath: 'inset(50%)', margin: '-1px' }}
+    >
       <label htmlFor="website-field">Website</label>
       <input
         id="website-field"

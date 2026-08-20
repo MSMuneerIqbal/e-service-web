@@ -127,7 +127,7 @@ export function FeatureBlock({
         ) : null}
       </div>
 
-      <div className="mt-12">{visual}</div>
+      <div className="mt-12 min-w-0">{visual}</div>
     </div>
   )
 }

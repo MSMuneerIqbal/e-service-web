@@ -96,6 +96,37 @@
     scroll-padding-top: 5.5rem;
   }
 
+  /*
+   * Horizontal overflow guard.
+   *
+   * `clip` rather than `hidden` on purpose: `overflow-x: hidden` turns the
+   * element into a scroll container, which silently breaks `position: sticky`
+   * on the navbar. `clip` cuts the overflow without that side effect.
+   *
+   * This is a safety net, not a licence to ship overflowing components - a
+   * page that scrolls sideways on a phone also makes `position: fixed`
+   * elements (the WhatsApp button, the sticky CTA) drift away from the edge
+   * as the user pans. Fix the offending element too, not just the symptom.
+   */
+  html,
+  body {
+    overflow-x: clip;
+    max-width: 100%;
+  }
+
+  /*
+   * Media and embeds never exceed their container. Cheap insurance against a
+   * single wide asset pushing the whole document sideways.
+   */
+  img,
+  svg,
+  video,
+  canvas,
+  iframe,
+  table {
+    max-width: 100%;
+  }
+
   body {
     background-color: var(--color-surface);
     color: var(--color-ink-700);

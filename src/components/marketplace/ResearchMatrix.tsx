@@ -70,8 +70,8 @@ const verdictStyles: Record<Verdict, { label: string; className: string }> = {
 export function ResearchMatrix() {
   return (
     <div>
-      <div className="overflow-x-auto rounded-xl border border-line bg-surface shadow-sm">
-        <table className="w-full min-w-[42rem] border-collapse text-left">
+      <div className="min-w-0 overflow-x-auto rounded-xl border border-line bg-surface shadow-sm">
+        <table className="w-full min-w-[36rem] border-collapse text-left">
           <caption className="sr-only">
             Example product research comparison across demand, competition,
             margin and risk. All values are illustrative.

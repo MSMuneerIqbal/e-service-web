@@ -255,6 +255,57 @@ describe('deployment readiness', () => {
   })
 })
 
+describe('mobile: no horizontal scroll', () => {
+  const css = readFileSync(join(ROOT, 'src', 'styles', 'globals.css'), 'utf8')
+
+  test('a horizontal overflow guard exists', () => {
+    assert.match(
+      css,
+      /overflow-x:\s*clip/,
+      'html/body need an overflow-x guard or a single wide element makes the whole page pan sideways'
+    )
+  })
+
+  test('the guard uses clip, never hidden', () => {
+    // `overflow-x: hidden` turns the element into a scroll container, which
+    // silently breaks `position: sticky` on the navbar. `clip` does not.
+    const guard = css.slice(css.indexOf('html,'), css.indexOf('html,') + 260)
+    assert.equal(
+      /overflow-x:\s*hidden/.test(guard),
+      false,
+      'use overflow-x: clip - hidden breaks the sticky header'
+    )
+  })
+
+  test('the honeypot is hidden by clipping, not a huge negative offset', () => {
+    // -left-[9999px] makes several mobile browsers grow the scrollable area,
+    // which is one way a page ends up scrolling sideways. That in turn makes
+    // position:fixed elements drift as the user pans.
+    const fields = readFileSync(
+      join(ROOT, 'src', 'components', 'forms', 'Fields.tsx'),
+      'utf8'
+    )
+    assert.equal(
+      /-left-\[\d{4,}px\]/.test(fields),
+      false,
+      'hide the honeypot with clip-path, not an off-canvas offset'
+    )
+  })
+
+  test('every wide min-width sits inside a horizontal scroll container', () => {
+    for (const file of srcFiles.filter((f) => f.endsWith('.tsx'))) {
+      const source = readFileSync(file, 'utf8')
+      const wide = source.match(/min-w-\[(\d+)rem\]/g)
+      if (!wide) continue
+      assert.match(
+        source,
+        /overflow-x-auto/,
+        `${file.slice(ROOT.length)} sets ${wide.join(', ')} without an overflow-x-auto wrapper`
+      )
+    }
+  })
+})
+
 describe('build output is fully static', () => {
   const buildDir = join(ROOT, '.next', 'server', 'app')
   const skip = existsSync(buildDir)
