@@ -12,7 +12,7 @@ Status: `[ ]` outstanding · `[~]` partially supplied · `[x]` supplied
 
 | # | Input | What it unblocks | Where it goes |
 |---|---|---|---|
-| [~] 1 | Name is now **Aneq_AR** as instructed. Still confirm: is it a personal name, a trading name, or a registered company — and is the underscore intended for public use? The domain and email say *AR Services Digital* | `Organization` JSON-LD, footer, legal pages | `src/content/site.ts` → `businessName` |
+| [~] 1 | Name is **AR Services Digital**, matching the domain and email. Still confirm for the legal pages: personal name, trading name, or registered company? | `Organization` JSON-LD, footer, legal pages | `src/content/site.ts` → `businessName` |
 | [ ] 2 | **Web3Forms access key.** Go to https://web3forms.com, enter `info@arservicesdigital.com`, they email you a key. Free, no account. | Consultation form delivery — **the form will not send without this** | `NEXT_PUBLIC_WEB3FORMS_KEY` on Vercel |
 | [x] 3 | ~~WhatsApp / phone~~ **Supplied: +971 58 858 1245** | Live in footer, contact page and floating button | `src/content/site.ts` → `contact[]` |
 | [ ] 5 | Privacy policy reviewed by a professional | `/privacy-policy` — and legally, the form itself | `src/app/privacy-policy/page.tsx` |
