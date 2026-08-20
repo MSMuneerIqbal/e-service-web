@@ -17,7 +17,7 @@ export function Navbar() {
         <div className="flex h-18 items-center justify-between gap-6">
           <Link
             href="/"
-            className="flex shrink-0 items-center gap-2.5"
+            className="flex min-w-0 items-center gap-2.5"
             aria-label={`${site.businessName} — home`}
           >
             <Wordmark />
@@ -44,8 +44,8 @@ export function Navbar() {
             </ul>
           </nav>
 
-          <div className="flex items-center gap-2">
-            <Button href="/contact" className="hidden sm:inline-flex">
+          <div className="flex shrink-0 items-center gap-2">
+            <Button href="/contact" className="hidden lg:inline-flex">
               {site.primaryCtaLabel}
             </Button>
             <MobileDrawer
@@ -86,7 +86,7 @@ function Wordmark() {
         />
         <circle cx="23" cy="10" r="2" className="fill-accent-400" />
       </svg>
-      <span className="text-body font-bold tracking-tight text-ink-900">
+      <span className="truncate text-body font-bold tracking-tight text-ink-900">
         {site.businessName}
       </span>
     </>
