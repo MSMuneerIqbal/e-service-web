@@ -56,13 +56,14 @@ export function Hero() {
 
           <div className="lg:col-span-6">
             {/*
-              Text summary of the adjacent visual. The dashboard itself is
-              aria-hidden, so this carries the meaning for assistive tech (§21).
+              The dashboard is no longer aria-hidden - its tabs are real
+              controls - so its content is announced directly and does not need
+              a duplicate summary. This line only establishes that the figures
+              are illustrative, which Constitution §42 requires.
             */}
             <p className="sr-only">
-              Illustration: a store overview showing weekly order trends, live
-              listing counts, and a daily queue of dispatches, tracking uploads
-              and buyer messages. All figures shown are examples.
+              The following is an example store overview. All figures are
+              illustrative, not client results.
             </p>
             <DashboardVisual />
           </div>
